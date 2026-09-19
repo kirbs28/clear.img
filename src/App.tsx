@@ -121,7 +121,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <img className="brand-logo" src={logo} alt="clear.img" />
+        <div className="brand-plate">
+          <img className="brand-logo" src={logo} alt="clear.img" />
+        </div>
         <div className="model-badge" title="The model runs on your device. Images are never uploaded.">
           <Cpu size={13} />
           {seg.model === 'ready' && <span>Model ready · {seg.device === 'webgpu' ? 'WebGPU' : 'WASM'}</span>}

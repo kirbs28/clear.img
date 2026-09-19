@@ -44,19 +44,28 @@ input {
 }
 
 /* ---------- top bar ---------- */
-/* Light bar: the logo is black/light-gray artwork designed for a light background. */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 20px;
-  background: #fff;
-  border-bottom: 1px solid #e3e6ee;
+  padding: 10px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
 }
 
+/* The logo is black + light-gray artwork, so it sits on a soft light gradient plate.
+   The plate darkens toward the right so the fading "G" doesn't vanish into it. */
+.brand-plate {
+  display: flex;
+  align-items: center;
+  padding: 5px 16px;
+  border-radius: 12px;
+  background: linear-gradient(100deg, #ffffff 0%, #dfe4f7 42%, #7f8cdc 100%);
+  box-shadow: 0 0 0 1px rgba(165, 180, 252, 0.45), 0 4px 20px rgba(99, 102, 241, 0.35);
+}
 .brand-logo {
   display: block;
-  height: 30px;
+  height: 28px;
   width: auto;
 }
 
@@ -65,11 +74,11 @@ input {
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  border: 1px solid #e3e6ee;
+  border: 1px solid var(--border);
   border-radius: 999px;
-  color: #5b6274;
+  color: var(--muted);
   font-size: 12px;
-  background: #f3f4f8;
+  background: var(--bg);
 }
 
 .main {
