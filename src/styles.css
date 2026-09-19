@@ -44,34 +44,20 @@ input {
 }
 
 /* ---------- top bar ---------- */
+/* Light bar: the logo is black/light-gray artwork designed for a light background. */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
+  padding: 8px 20px;
+  background: #fff;
+  border-bottom: 1px solid #e3e6ee;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: -0.01em;
-}
-.brand-dot {
-  color: var(--accent-2);
-}
-.logo {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #4f46e5, #818cf8);
-  color: #fff;
+.brand-logo {
+  display: block;
+  height: 30px;
+  width: auto;
 }
 
 .model-badge {
@@ -79,11 +65,11 @@ input {
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  border: 1px solid var(--border);
+  border: 1px solid #e3e6ee;
   border-radius: 999px;
-  color: var(--muted);
+  color: #5b6274;
   font-size: 12px;
-  background: var(--bg);
+  background: #f3f4f8;
 }
 
 .main {

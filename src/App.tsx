@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Cpu, Loader2, ShieldCheck } from 'lucide-react';
+import { Cpu, Loader2 } from 'lucide-react';
+import logo from './assets/logo.png';
 import Dropzone from './components/Dropzone';
 import Editor from './components/Editor';
 import { useSegmenter } from './hooks/useSegmenter';
@@ -120,12 +121,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <div className="brand">
-          <span className="logo">
-            <ShieldCheck size={16} />
-          </span>
-          clear<span className="brand-dot">.</span>img
-        </div>
+        <img className="brand-logo" src={logo} alt="clear.img" />
         <div className="model-badge" title="The model runs on your device. Images are never uploaded.">
           <Cpu size={13} />
           {seg.model === 'ready' && <span>Model ready · {seg.device === 'webgpu' ? 'WebGPU' : 'WASM'}</span>}
