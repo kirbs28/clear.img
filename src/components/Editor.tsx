@@ -14,6 +14,8 @@ import {
 import { type Background, renderComposite } from '../lib/composite';
 import { download } from '../lib/image';
 import { applyAlpha, cloneCanvas, snapshotAlpha, strokeSegment } from '../lib/mask';
+import type { Subject } from '../lib/segmenter';
+import SubjectPicker from './SubjectPicker';
 
 type Tool = 'erase' | 'restore' | 'pan';
 type BgKind = 'transparent' | 'color' | 'blur' | 'image';
@@ -21,6 +23,8 @@ type BgKind = 'transparent' | 'color' | 'blur' | 'image';
 interface Props {
   original: ImageBitmap;
   aiMask: HTMLCanvasElement;
+  subject: Subject;
+  onSubjectChange: (s: Subject) => void;
   onNewFile: (file: File) => void;
 }
 
@@ -33,7 +37,7 @@ interface View {
 const HISTORY_LIMIT = 25;
 const SWATCHES = ['#ffffff', '#000000', '#f1f5f9', '#ef4444', '#3b82f6', '#22c55e'];
 
-export default function Editor({ original, aiMask, onNewFile }: Props) {
+export default function Editor({ original, aiMask, subject, onSubjectChange, onNewFile }: Props) {
   const w = original.width;
   const h = original.height;
 
@@ -179,6 +183,14 @@ export default function Editor({ original, aiMask, onNewFile }: Props) {
     render();
   };
 
+  // A new AI matte arrives when the subject type changes: swap it in as an undoable step.
+  const initialAi = useRef(aiMask);
+  useEffect(() => {
+    if (aiMask === initialAi.current) return;
+    initialAi.current = aiMask;
+    resetToAi();
+  }, [aiMask]);
+
   // ---------- keyboard ----------
   const handlersRef = useRef({ undo, redo });
   handlersRef.current = { undo, redo };
@@ -306,6 +318,12 @@ export default function Editor({ original, aiMask, onNewFile }: Props) {
   return (
     <div className="editor">
       <aside className="panel">
+        <section>
+          <h3>Subject</h3>
+          <SubjectPicker value={subject} onChange={onSubjectChange} />
+          <p className="hint">Background left behind a person? Choose Person to re-run with a portrait model.</p>
+        </section>
+
         <section>
           <h3>Tools</h3>
           <div className="btn-row">

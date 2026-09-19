@@ -1,7 +1,15 @@
 import { useRef } from 'react';
 import { Lock, Upload, Wand2, Zap } from 'lucide-react';
+import type { Subject } from '../lib/segmenter';
+import SubjectPicker from './SubjectPicker';
 
-export default function Dropzone({ onFile }: { onFile: (file: File) => void }) {
+interface Props {
+  onFile: (file: File) => void;
+  subject: Subject;
+  onSubjectChange: (s: Subject) => void;
+}
+
+export default function Dropzone({ onFile, subject, onSubjectChange }: Props) {
   const input = useRef<HTMLInputElement>(null);
 
   return (
@@ -10,6 +18,11 @@ export default function Dropzone({ onFile }: { onFile: (file: File) => void }) {
       <p className="lead">
         Runs entirely in your browser with an open-source AI model. No uploads, no sign-up, no limits.
       </p>
+
+      <div className="subject-row">
+        <span>What's in the photo?</span>
+        <SubjectPicker value={subject} onChange={onSubjectChange} />
+      </div>
 
       <button className="dropzone" onClick={() => input.current?.click()}>
         <Upload size={30} />

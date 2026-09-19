@@ -5,7 +5,7 @@ import Editor from './components/Editor';
 import { useSegmenter } from './hooks/useSegmenter';
 import { loadImage } from './lib/image';
 import { grayToMaskCanvas } from './lib/mask';
-import { segmenter } from './lib/segmenter';
+import { segmenter, type Subject } from './lib/segmenter';
 
 interface Session {
   id: number;
@@ -19,6 +19,8 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [subject, setSubject] = useState<Subject>('auto');
+  const subjectRef = useRef<Subject>('auto'); // read by the window-level paste/drop handlers
   const counter = useRef(0);
 
   // Start fetching the model immediately so it's usually ready by the time an image is dropped.
@@ -33,7 +35,7 @@ export default function App() {
     setBusy(true);
     try {
       const original = await loadImage(file);
-      const result = await segmenter.segment(original);
+      const result = await segmenter.segment(original, subjectRef.current);
       setSession({
         id: ++counter.current,
         original,
@@ -46,6 +48,31 @@ export default function App() {
       setBusy(false);
     }
   }, []);
+
+  // Re-run the current image with a different subject hint (e.g. background left behind a person).
+  const changeSubject = useCallback(
+    async (next: Subject) => {
+      const previous = subjectRef.current;
+      subjectRef.current = next;
+      setSubject(next);
+      if (!session) return;
+      setError(null);
+      setBusy(true);
+      try {
+        const result = await segmenter.segment(session.original, next);
+        const aiMask = grayToMaskCanvas(result.mask, result.width, result.height);
+        setSession((s) => (s ? { ...s, aiMask } : s));
+      } catch (err) {
+        console.error(err);
+        subjectRef.current = previous;
+        setSubject(previous);
+        setError(err instanceof Error ? err.message : 'Could not re-run with that subject type.');
+      } finally {
+        setBusy(false);
+      }
+    },
+    [session],
+  );
 
   // Window-level paste and drag & drop, active on both the landing page and in the editor.
   useEffect(() => {
@@ -85,7 +112,10 @@ export default function App() {
     };
   }, [handleFile]);
 
-  const downloading = seg.model === 'loading' && seg.progress < 100;
+  const downloadingPerson = busy && subject === 'person' && seg.personModel === 'loading' && seg.personProgress < 100;
+  const downloadingGeneral = seg.model === 'loading' && seg.progress < 100;
+  const downloading = downloadingPerson || downloadingGeneral;
+  const downloadProgress = downloadingPerson ? seg.personProgress : seg.progress;
 
   return (
     <div className="app">
@@ -107,9 +137,16 @@ export default function App() {
 
       <main className="main">
         {session ? (
-          <Editor key={session.id} original={session.original} aiMask={session.aiMask} onNewFile={handleFile} />
+          <Editor
+            key={session.id}
+            original={session.original}
+            aiMask={session.aiMask}
+            subject={subject}
+            onSubjectChange={changeSubject}
+            onNewFile={handleFile}
+          />
         ) : (
-          <Dropzone onFile={handleFile} />
+          <Dropzone onFile={handleFile} subject={subject} onSubjectChange={changeSubject} />
         )}
       </main>
 
@@ -124,11 +161,11 @@ export default function App() {
       {busy && (
         <div className="busy-overlay">
           <Loader2 className="spin" size={28} />
-          <div className="busy-title">{downloading ? 'Downloading the AI model…' : 'Removing background…'}</div>
+          <div className="busy-title">{downloading ? `Downloading the ${downloadingPerson ? 'person' : 'AI'} model…` : 'Removing background…'}</div>
           {downloading ? (
             <>
               <div className="progress">
-                <div className="progress-bar" style={{ width: `${seg.progress}%` }} />
+                <div className="progress-bar" style={{ width: `${downloadProgress}%` }} />
               </div>
               <div className="busy-sub">One-time download, cached in your browser afterwards.</div>
             </>

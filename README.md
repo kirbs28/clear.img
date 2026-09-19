@@ -37,6 +37,16 @@ drop / paste / browse
 | `src/lib/mask.ts` | Soft brush, alpha snapshots for undo/redo |
 | `src/components/Editor.tsx` | Canvas editor: brush, zoom/pan, compare slider, export |
 
+## Subject type
+
+The **Subject** picker (landing page and editor sidebar) tells the AI what is in the photo.
+
+- **Auto**: RMBG-1.4 alone. Works for any subject.
+- **Person**: also runs MODNet (`Xenova/modnet`, Apache-2.0, ~26 MB, downloaded on first use) and keeps only pixels
+  that *both* models call foreground. This removes background the general model wrongly kept behind people.
+  If Person mode cuts off something the person is holding, use the Restore brush. Switching subject in the
+  editor replaces the AI result but is one undo step (`Ctrl+Z`) away from your previous edits.
+
 ## Editor controls
 
 | Action | Input |

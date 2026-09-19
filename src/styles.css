@@ -153,6 +153,19 @@ input {
   gap: 7px;
 }
 
+.subject-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.subject-row .btn-row {
+  width: 220px;
+}
+
 /* ---------- editor ---------- */
 .editor {
   flex: 1;

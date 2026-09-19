@@ -1,10 +1,14 @@
 // Main-thread client for the inference worker. A module-level singleton, so the
 // model is downloaded once even under React StrictMode's double mount.
 
+export type Subject = 'auto' | 'person';
+
 export interface SegmenterState {
-  model: 'idle' | 'loading' | 'ready' | 'error';
-  progress: number; // 0-100, download progress of the model weights
+  model: 'idle' | 'loading' | 'ready' | 'error'; // general model
+  progress: number; // 0-100, download progress of the general model
   device: 'webgpu' | 'wasm' | null;
+  personModel: 'idle' | 'loading' | 'ready'; // portrait model, fetched on first use
+  personProgress: number;
   running: boolean;
 }
 
@@ -14,7 +18,14 @@ export interface SegmentResult {
   mask: Uint8ClampedArray; // 8-bit grayscale matte, 255 = keep
 }
 
-let state: SegmenterState = { model: 'idle', progress: 0, device: null, running: false };
+let state: SegmenterState = {
+  model: 'idle',
+  progress: 0,
+  device: null,
+  personModel: 'idle',
+  personProgress: 0,
+  running: false,
+};
 const listeners = new Set<() => void>();
 const pending = new Map<number, { resolve: (r: SegmentResult) => void; reject: (e: Error) => void }>();
 let worker: Worker | null = null;
@@ -31,9 +42,11 @@ function getWorker(): Worker {
   worker.onmessage = (e: MessageEvent) => {
     const msg = e.data;
     if (msg.type === 'progress') {
-      setState({ model: 'loading', progress: msg.progress });
+      if (msg.model === 'person') setState({ personModel: 'loading', personProgress: msg.progress });
+      else setState({ model: 'loading', progress: msg.progress });
     } else if (msg.type === 'ready') {
-      setState({ model: 'ready', progress: 100, device: msg.device });
+      if (msg.model === 'person') setState({ personModel: 'ready', personProgress: 100 });
+      else setState({ model: 'ready', progress: 100, device: msg.device });
     } else if (msg.type === 'result') {
       const p = pending.get(msg.id);
       pending.delete(msg.id);
@@ -42,7 +55,11 @@ function getWorker(): Worker {
     } else if (msg.type === 'error') {
       const p = msg.id != null ? pending.get(msg.id) : undefined;
       if (msg.id != null) pending.delete(msg.id);
-      setState({ model: state.model === 'ready' ? 'ready' : 'error', running: pending.size > 0 });
+      setState({
+        model: state.model === 'ready' ? 'ready' : 'error',
+        personModel: state.personModel === 'ready' ? 'ready' : 'idle',
+        running: pending.size > 0,
+      });
       p?.reject(new Error(msg.message));
     }
   };
@@ -63,15 +80,16 @@ export const segmenter = {
     getWorker().postMessage({ type: 'load' });
   },
 
-  async segment(bitmap: ImageBitmap): Promise<SegmentResult> {
+  async segment(bitmap: ImageBitmap, subject: Subject = 'auto'): Promise<SegmentResult> {
     const w = getWorker();
     if (state.model === 'idle' || state.model === 'error') setState({ model: 'loading', progress: 0 });
+    if (subject === 'person' && state.personModel === 'idle') setState({ personModel: 'loading', personProgress: 0 });
     const copy = await createImageBitmap(bitmap); // the copy is transferred; the caller keeps the original
     const id = nextId++;
     setState({ running: true });
     return new Promise<SegmentResult>((resolve, reject) => {
       pending.set(id, { resolve, reject });
-      w.postMessage({ type: 'segment', id, bitmap: copy }, [copy]);
+      w.postMessage({ type: 'segment', id, bitmap: copy, subject }, [copy]);
     });
   },
 };
