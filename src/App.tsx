@@ -164,7 +164,7 @@ export default function App() {
         <footer className="footer">
           Developed by{' '}
           <a href="https://kirbsramilo.vercel.app" target="_blank" rel="noopener noreferrer">
-            Kirbs Ramilo
+            Kirby Ramilo
           </a>
         </footer>
       )}
