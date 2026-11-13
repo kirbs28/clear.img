@@ -160,6 +160,15 @@ export default function App() {
         )}
       </main>
 
+      {!session && (
+        <footer className="footer">
+          Developed by{' '}
+          <a href="https://kirbsramilo.vercel.app" target="_blank" rel="noopener noreferrer">
+            Kirbs Ramilo
+          </a>
+        </footer>
+      )}
+
       {error && (
         <div className="toast" role="alert" onClick={() => setError(null)}>
           {error}

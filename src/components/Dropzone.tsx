@@ -14,44 +14,48 @@ export default function Dropzone({ onFile, subject, onSubjectChange }: Props) {
 
   return (
     <div className="landing">
-      <h1>Remove image backgrounds, free.</h1>
-      <p className="lead">
-        Runs entirely in your browser with an open-source AI model. No uploads, no sign-up, no limits.
-      </p>
+      <div className="landing-info">
+        <h1>Remove image backgrounds, free.</h1>
+        <p className="lead">
+          Runs entirely in your browser with an open-source AI model. No uploads, no sign-up, no limits.
+        </p>
 
-      <div className="subject-row">
-        <span>What's in the photo?</span>
-        <SubjectPicker value={subject} onChange={onSubjectChange} />
+        <ul className="features">
+          <li>
+            <Lock size={16} /> Private: photos never leave your device
+          </li>
+          <li>
+            <Zap size={16} /> Fast: GPU accelerated with WebGPU
+          </li>
+          <li>
+            <Wand2 size={16} /> Erase / restore brush for touch-ups
+          </li>
+        </ul>
       </div>
 
-      <button className="dropzone" onClick={() => input.current?.click()}>
-        <Upload size={30} />
-        <span className="dz-title">Drop an image, click to browse, or paste with Ctrl+V</span>
-        <span className="dz-sub">PNG, JPG or WebP</span>
-      </button>
-      <input
-        ref={input}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) onFile(f);
-          e.target.value = '';
-        }}
-      />
+      <div className="landing-drop">
+        <div className="subject-row">
+          <span>What's in the photo?</span>
+          <SubjectPicker value={subject} onChange={onSubjectChange} />
+        </div>
 
-      <ul className="features">
-        <li>
-          <Lock size={16} /> Private: photos never leave your device
-        </li>
-        <li>
-          <Zap size={16} /> Fast: GPU accelerated with WebGPU
-        </li>
-        <li>
-          <Wand2 size={16} /> Erase / restore brush for touch-ups
-        </li>
-      </ul>
+        <button className="dropzone" onClick={() => input.current?.click()}>
+          <Upload size={30} />
+          <span className="dz-title">Drop an image, click to browse, or paste with Ctrl+V</span>
+          <span className="dz-sub">PNG, JPG or WebP</span>
+        </button>
+        <input
+          ref={input}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onFile(f);
+            e.target.value = '';
+          }}
+        />
+      </div>
     </div>
   );
 }
