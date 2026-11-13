@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Cpu, Loader2 } from 'lucide-react';
-import logo from './assets/logo.png';
 import Dropzone from './components/Dropzone';
 import Editor from './components/Editor';
 import { useSegmenter } from './hooks/useSegmenter';
@@ -75,6 +74,12 @@ export default function App() {
     [session],
   );
 
+  // Logo click: leave the editor and return to the landing (home) screen.
+  const goHome = useCallback(() => {
+    setSession(null);
+    setError(null);
+  }, []);
+
   // Window-level paste and drag & drop, active on both the landing page and in the editor.
   useEffect(() => {
     let depth = 0;
@@ -121,9 +126,16 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <div className="brand-plate">
-          <img className="brand-logo" src={logo} alt="clear.img" />
-        </div>
+        <button
+          type="button"
+          className="brand"
+          aria-label="clear.IMG, go to home screen"
+          title="Home"
+          onClick={goHome}
+        >
+          <span className="brand-light">clear.</span>
+          <span className="brand-bold">IMG</span>
+        </button>
         <div className="model-badge" title="The model runs on your device. Images are never uploaded.">
           <Cpu size={13} />
           {seg.model === 'ready' && <span>Model ready · {seg.device === 'webgpu' ? 'WebGPU' : 'WASM'}</span>}

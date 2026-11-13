@@ -53,20 +53,32 @@ input {
   border-bottom: 1px solid var(--border);
 }
 
-/* The logo is black + light-gray artwork, so it sits on a soft light gradient plate.
-   The plate darkens toward the right so the fading "G" doesn't vanish into it. */
-.brand-plate {
-  display: flex;
-  align-items: center;
-  padding: 5px 16px;
-  border-radius: 12px;
-  background: linear-gradient(100deg, #ffffff 0%, #dfe4f7 42%, #7f8cdc 100%);
-  box-shadow: 0 0 0 1px rgba(165, 180, 252, 0.45), 0 4px 20px rgba(99, 102, 241, 0.35);
+/* Minimalist black & white wordmark; clicking it returns to the home screen. */
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  cursor: pointer;
 }
-.brand-logo {
-  display: block;
-  height: 28px;
-  width: auto;
+.brand-light {
+  font-weight: 300;
+}
+.brand-bold {
+  font-weight: 800;
+}
+.brand:hover {
+  opacity: 0.75;
+}
+.brand:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .model-badge {
